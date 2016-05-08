@@ -26,7 +26,7 @@ int main()
 	int j=0;
 	pid_t testPid;
 	char processName[16]="est.processtest";
-/*
+
 	maxpri=sched_get_priority_max(SCHED_FIFO);
 
 	if(maxpri == -1)
@@ -35,7 +35,7 @@ int main()
 		exit(1);
 	}
 	param.sched_priority = maxpri;
-*/
+
 	if(!buf)
 	{
 		printf("the allocation of memory is failed!\n");

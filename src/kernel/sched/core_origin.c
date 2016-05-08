@@ -1736,7 +1736,7 @@ void sched_fork(struct task_struct *p)
 {
 	unsigned long flags;
 	int cpu = get_cpu();
-	int maxpri;
+
 	__sched_fork(p);
 	/*
 	 * We mark the process as running here. This guarantees that
@@ -1755,22 +1755,9 @@ void sched_fork(struct task_struct *p)
 	 */
 	if (unlikely(p->sched_reset_on_fork)) {
 		if (task_has_rt_policy(p)) {
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////changepart!///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-			p->policy = SCHED_RR;
+			p->policy = SCHED_NORMAL;
 			p->static_prio = NICE_TO_PRIO(0);
-			//maxpri=sched_get_priority_max(SCHED_RR);
-			maxpri = 99;
-			if(maxpri == -1)
-			{
-				maxpri = 0;
-			}
-
-			p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////changepart!///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+			p->rt_priority = 0;
 		} else if (PRIO_TO_NICE(p->static_prio) < 0)
 			p->static_prio = NICE_TO_PRIO(0);
 
