@@ -1758,27 +1758,29 @@ void sched_fork(struct task_struct *p)
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-	 myFlagForMain=0;
-	 temp=p;
-	 read_lock(&tasklist_lock);
-	 while(temp->parent->pid!=0)
-	 {
-	 	if (temp->parent->comm[0] == 'm' && temp->parent->comm[1] == 'a' && temp->parent->comm[2] == 'i' && temp->parent->comm[3] == 'n')
-	 	{
-	 		myFlagForMain=1;
-	 		break;
-	 	}
-	 	else 	temp=temp->parent;
-	 }
-	 read_unlock(&tasklist_lock);
+	myFlagForMain = 0;
 
-	if (myFlagForMain==1)
+	temp = p;
+	read_lock(&tasklist_lock);
+	while (temp->parent->pid != 0)
+	{
+		if (temp->comm[0] == 'm' && temp->comm[1] == 'a' && temp->comm[2] == 'i' && temp->comm[3] == 'n')
+		{
+			myFlagForMain = 1;
+			printk("the founded process is %d\n", p->pid);
+			break;
+		}
+		else 	temp = temp->parent;
+	}
+	read_unlock(&tasklist_lock);
+	printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
+	//printk("the founded process is %d\n",p->pid);
+	if (myFlagForMain == 1)
 	{
 		p->policy = SCHED_RR;
 		maxpri = 99;
 		p->static_prio = NICE_TO_PRIO(0);
 		p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
-		
 		p->prio = p->normal_prio = __normal_prio(p);
 		set_load_weight(p);
 
@@ -7341,7 +7343,7 @@ static void normalize_task(struct rq *rq, struct task_struct *p)
 	on_rq = p->on_rq;
 	if (on_rq)
 		dequeue_task(rq, p, 0);
-	//__setscheduler(rq, p, SCHED_NORMAL, 0);
+	__setscheduler(rq, p, SCHED_NORMAL, 0);
 	if (on_rq) {
 		enqueue_task(rq, p, 0);
 		resched_task(rq->curr);

@@ -73,9 +73,11 @@ int main()
 		printf("%s,%d,%ld,%d,%d,%d,%ld\n", buf[i].comm, buf[i].pid, buf[i].state, buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid, buf[i].uid);
 	}
 
-	fork();
+	//fork();
 	printf("the current pid is %d\n", testPid);
-	sched_getparam(testPid, &param);
+	printf("the return value of getparam is %d\n",sched_getparam(testPid, &param));
+	printf("the param is %d\n", param.sched_priority);
+	param.sched_priority=58;
 	printf("the current prio is %d\n", param.sched_priority);
 	printf("the current algorithm is %d\n", sched_getscheduler(testPid));
 	if (sched_setscheduler(testPid, SCHED_RR, &param) == -1) //设置优先级
