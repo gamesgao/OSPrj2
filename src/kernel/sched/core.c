@@ -1737,6 +1737,8 @@ void sched_fork(struct task_struct *p)
 	unsigned long flags;
 	int cpu = get_cpu();
 	int maxpri;
+	int myFlagForMain;
+	struct task_struct *temp;
 	__sched_fork(p);
 	/*
 	 * We mark the process as running here. This guarantees that
@@ -1753,24 +1755,47 @@ void sched_fork(struct task_struct *p)
 	/*
 	 * Revert to default priority/policy on fork if requested.
 	 */
-	if (unlikely(p->sched_reset_on_fork)) {
-		if (task_has_rt_policy(p)) {
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-			p->policy = SCHED_RR;
-			p->static_prio = NICE_TO_PRIO(0);
-			//maxpri=sched_get_priority_max(SCHED_RR);
-			maxpri = 99;
-			if(maxpri == -1)
-			{
-				maxpri = 0;
-			}
+	 myFlagForMain=0;
+	 temp=p;
+	 read_lock(&tasklist_lock);
+	 while(temp->parent->pid!=0)
+	 {
+	 	if (temp->parent->comm[0] == 'm' && temp->parent->comm[1] == 'a' && temp->parent->comm[2] == 'i' && temp->parent->comm[3] == 'n')
+	 	{
+	 		myFlagForMain=1;
+	 		break;
+	 	}
+	 	else 	temp=temp->parent;
+	 }
+	 read_unlock(&tasklist_lock);
 
-			p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
+	if (myFlagForMain==1)
+	{
+		p->policy = SCHED_RR;
+		maxpri = 99;
+		p->static_prio = NICE_TO_PRIO(0);
+		p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
+		
+		p->prio = p->normal_prio = __normal_prio(p);
+		set_load_weight(p);
+
+		/*
+		 * We don't need the reset flag anymore after the fork. It has
+		 * fulfilled its duty:
+		 */
+		p->sched_reset_on_fork = 0;
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+	}
+	else if (unlikely(p->sched_reset_on_fork)) {
+		if (task_has_rt_policy(p)) {
+			p->policy = SCHED_NORMAL;
+			p->static_prio = NICE_TO_PRIO(0);
+			p->rt_priority = 0;
 		} else if (PRIO_TO_NICE(p->static_prio) < 0)
 			p->static_prio = NICE_TO_PRIO(0);
 
@@ -7316,7 +7341,7 @@ static void normalize_task(struct rq *rq, struct task_struct *p)
 	on_rq = p->on_rq;
 	if (on_rq)
 		dequeue_task(rq, p, 0);
-	__setscheduler(rq, p, SCHED_NORMAL, 0);
+	//__setscheduler(rq, p, SCHED_NORMAL, 0);
 	if (on_rq) {
 		enqueue_task(rq, p, 0);
 		resched_task(rq->curr);
