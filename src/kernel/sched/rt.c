@@ -6,6 +6,13 @@
 #include "sched.h"
 
 #include <linux/slab.h>
+ ////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+ #include <linux/random.h>
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
 
@@ -1333,9 +1340,194 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	struct list_head *queue;
 	int idx;
 
-	idx = sched_find_first_bit(array->bitmap);
-	BUG_ON(idx >= MAX_RT_PRIO);
 
+	
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+	//idx = sched_find_first_bit(array->bitmap);	//original one
+	//to avoid the problem in calling function, use process instead
+	unsigned long *b;
+	unsigned long randomNumberForIdex;
+	int i=0;
+	
+
+	#if BITS_PER_LONG == 64
+		unsigned long myMaskForBitmap=0x0000000000000001;
+		int resultForCountOne=0;
+		int resultForCountTwo=0;
+		idx = MAX_RT_PRIO;
+		//count all the 1 in bitmap
+		b=array->bitmap;
+		for(i=0;i<64;i++)
+		{
+			if((b[0]&myMaskForBitmap)!=0)	resultForCountOne++;
+			myMaskForBitmap<<=1;
+		}
+		myMaskForBitmap=0x0000000000000001;
+		for(i=0;i<64;i++)
+		{
+			if((b[1]&myMaskForBitmap)!=0)	resultForCountTwo++;
+			myMaskForBitmap<<=1;
+		}
+		BUG_ON((resultForCountOne+resultForCountTwo)==0);
+		myMaskForBitmap=0x0000000000000001;
+		get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
+		randomNumberForIdex=randomNumberForIdex&0x7fffffffffffffff;
+		randomNumberForIdex=randomNumberForIdex%(resultForCountOne+resultForCountTwo);
+		if(randomNumberForIdex<=resultForCountOne)
+		{
+			for(i=0;i<64;i++)
+			{
+				if((b[0]&myMaskForBitmap)!=0)
+				{
+					randomNumberForIdex--;
+					if(randomNumberForIdex==0)
+					{
+						idx=i;
+						break;
+					}
+				}
+				myMaskForBitmap<<=1;
+			}
+		}
+		else
+		{
+			randomNumberForIdex-=resultForCountOne;
+			for(i=0;i<64;i++)
+			{
+				if((b[1]&myMaskForBitmap)!=0)
+				{
+					randomNumberForIdex--;
+					if(randomNumberForIdex==0)
+					{
+						idx=i+64;
+						break;
+					}
+				}
+				myMaskForBitmap<<=1;
+			}
+		}
+	#elif BITS_PER_LONG == 32
+		unsigned long myMaskForBitmap=0x00000001;
+		int resultForCountOne=0;
+		int resultForCountTwo=0;
+		int resultForCountThree=0;
+		int resultForCountFour=0;
+		idx = MAX_RT_PRIO;
+		//count all the 1 in bitmap
+		b=array->bitmap;
+		for(i=0;i<32;i++)
+		{
+			if((b[0]&myMaskForBitmap)!=0)	resultForCountOne++;
+			myMaskForBitmap<<=1;
+		}
+		myMaskForBitmap=0x00000001;
+		for(i=0;i<32;i++)
+		{
+			if((b[1]&myMaskForBitmap)!=0)	resultForCountTwo++;
+			myMaskForBitmap<<=1;
+		}
+		myMaskForBitmap=0x00000001;
+		for(i=0;i<32;i++)
+		{
+			if((b[2]&myMaskForBitmap)!=0)	resultForCountThree++;
+			myMaskForBitmap<<=1;
+		}
+		myMaskForBitmap=0x00000001;
+		for(i=0;i<32;i++)
+		{
+			if((b[3]&myMaskForBitmap)!=0)	resultForCountFour++;
+			myMaskForBitmap<<=1;
+		}
+		BUG_ON((resultForCountOne+resultForCountTwo+resultForCountThree+resultForCountFour)==0);
+		myMaskForBitmap=0x00000001;
+		get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
+		randomNumberForIdex=randomNumberForIdex&0x7fffffff;
+		randomNumberForIdex=randomNumberForIdex%(resultForCountOne+resultForCountTwo+resultForCountThree+resultForCountFour);
+		if(randomNumberForIdex<=resultForCountOne)
+		{
+			for(i=0;i<32;i++)
+			{
+				if((b[0]&myMaskForBitmap)!=0)
+				{
+					randomNumberForIdex--;
+					if(randomNumberForIdex==0)
+					{
+						idx=i;
+						break;
+					}
+				}
+				myMaskForBitmap<<=1;
+			}
+		}
+		else
+		{
+			randomNumberForIdex-=resultForCountOne;
+			if(randomNumberForIdex<=resultForCountTwo)
+			{
+				for(i=0;i<32;i++)
+				{
+					if((b[1]&myMaskForBitmap)!=0)
+					{
+						randomNumberForIdex--;
+						if(randomNumberForIdex==0)
+						{
+							idx=i+32;
+							break;
+						}
+					}
+					myMaskForBitmap<<=1;
+				}
+			}
+			else
+			{
+				randomNumberForIdex-=resultForCountTwo;
+				if(randomNumberForIdex<=resultForCountThree)
+				{
+					for(i=0;i<32;i++)
+					{
+						if((b[2]&myMaskForBitmap)!=0)
+						{
+							randomNumberForIdex--;
+							if(randomNumberForIdex==0)
+							{
+								idx=i+64;
+								break;
+							}
+						}
+						myMaskForBitmap<<=1;
+					}
+				}
+				else
+				{
+					randomNumberForIdex-=resultForCountThree;
+					for(i=0;i<32;i++)
+					{
+						if((b[3]&myMaskForBitmap)!=0)
+						{
+							randomNumberForIdex--;
+							if(randomNumberForIdex==0)
+							{
+								idx=i+96;
+								break;
+							}
+						}
+						myMaskForBitmap<<=1;
+					}
+				}
+				
+			}
+			
+		}
+	#else
+	#error BITS_PER_LONG not defined
+	#endif
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+	BUG_ON(idx >= MAX_RT_PRIO);
+	printk("the random idx is %d\n",idx);
 	queue = array->queue + idx;
 	next = list_entry(queue->next, struct sched_rt_entity, run_list);
 
