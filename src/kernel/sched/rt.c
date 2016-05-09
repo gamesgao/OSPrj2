@@ -6,10 +6,10 @@
 #include "sched.h"
 
 #include <linux/slab.h>
- ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
- #include <linux/random.h>
+#include <linux/random.h>
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ struct rt_bandwidth def_rt_bandwidth;
 static enum hrtimer_restart sched_rt_period_timer(struct hrtimer *timer)
 {
 	struct rt_bandwidth *rt_b =
-		container_of(timer, struct rt_bandwidth, rt_period_timer);
+	    container_of(timer, struct rt_bandwidth, rt_period_timer);
 	ktime_t now;
 	int overrun;
 	int idle = 0;
@@ -47,7 +47,7 @@ void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime)
 	raw_spin_lock_init(&rt_b->rt_runtime_lock);
 
 	hrtimer_init(&rt_b->rt_period_timer,
-			CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	             CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	rt_b->rt_period_timer.function = sched_rt_period_timer;
 }
 
@@ -136,8 +136,8 @@ void free_rt_sched_group(struct task_group *tg)
 }
 
 void init_tg_rt_entry(struct task_group *tg, struct rt_rq *rt_rq,
-		struct sched_rt_entity *rt_se, int cpu,
-		struct sched_rt_entity *parent)
+                      struct sched_rt_entity *rt_se, int cpu,
+                      struct sched_rt_entity *parent)
 {
 	struct rq *rq = cpu_rq(cpu);
 
@@ -176,16 +176,16 @@ int alloc_rt_sched_group(struct task_group *tg, struct task_group *parent)
 		goto err;
 
 	init_rt_bandwidth(&tg->rt_bandwidth,
-			ktime_to_ns(def_rt_bandwidth.rt_period), 0);
+	                  ktime_to_ns(def_rt_bandwidth.rt_period), 0);
 
 	for_each_possible_cpu(i) {
 		rt_rq = kzalloc_node(sizeof(struct rt_rq),
-				     GFP_KERNEL, cpu_to_node(i));
+		                     GFP_KERNEL, cpu_to_node(i));
 		if (!rt_rq)
 			goto err;
 
 		rt_se = kzalloc_node(sizeof(struct sched_rt_entity),
-				     GFP_KERNEL, cpu_to_node(i));
+		                     GFP_KERNEL, cpu_to_node(i));
 		if (!rt_se)
 			goto err_free_rq;
 
@@ -330,7 +330,7 @@ static void dequeue_pushable_task(struct rq *rq, struct task_struct *p)
 	/* Update the new highest prio pushable task */
 	if (has_pushable_tasks(rq)) {
 		p = plist_first_entry(&rq->rt.pushable_tasks,
-				      struct task_struct, pushable_tasks);
+		                      struct task_struct, pushable_tasks);
 		rq->rt.highest_prio.next = p->prio;
 	} else
 		rq->rt.highest_prio.next = MAX_RT_PRIO;
@@ -384,7 +384,7 @@ static inline struct task_group *next_task_group(struct task_group *tg)
 {
 	do {
 		tg = list_entry_rcu(tg->list.next,
-			typeof(struct task_group), list);
+		                    typeof(struct task_group), list);
 	} while (&tg->list != &task_groups && task_group_is_autogroup(tg));
 
 	if (&tg->list == &task_groups)
@@ -401,7 +401,7 @@ static inline struct task_group *next_task_group(struct task_group *tg)
 static inline void list_add_leaf_rt_rq(struct rt_rq *rt_rq)
 {
 	list_add_rcu(&rt_rq->leaf_rt_rq_list,
-			&rq_of_rt_rq(rt_rq)->leaf_rt_rq_list);
+	             &rq_of_rt_rq(rt_rq)->leaf_rt_rq_list);
 }
 
 static inline void list_del_leaf_rt_rq(struct rt_rq *rt_rq)
@@ -641,7 +641,7 @@ static void __disable_runtime(struct rq *rq)
 		 * exactly the right amount of runtime to take out.
 		 */
 		if (rt_rq->rt_runtime == RUNTIME_INF ||
-				rt_rq->rt_runtime == rt_b->rt_runtime)
+		        rt_rq->rt_runtime == rt_b->rt_runtime)
 			goto balanced;
 		raw_spin_unlock(&rt_rq->rt_runtime_lock);
 
@@ -802,7 +802,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
 			if (rt_rq->rt_throttled)
 				balance_runtime(rt_rq);
 			runtime = rt_rq->rt_runtime;
-			rt_rq->rt_time -= min(rt_rq->rt_time, overrun*runtime);
+			rt_rq->rt_time -= min(rt_rq->rt_time, overrun * runtime);
 			if (rt_rq->rt_throttled && rt_rq->rt_time < runtime) {
 				rt_rq->rt_throttled = 0;
 				enqueue = 1;
@@ -916,7 +916,7 @@ static void update_curr_rt(struct rq *rq)
 		delta_exec = 0;
 
 	schedstat_set(curr->se.statistics.exec_max,
-		      max(curr->se.statistics.exec_max, delta_exec));
+	              max(curr->se.statistics.exec_max, delta_exec));
 
 	curr->se.sum_exec_runtime += delta_exec;
 	account_group_exec_runtime(curr, delta_exec);
@@ -1000,7 +1000,7 @@ dec_rt_prio(struct rt_rq *rt_rq, int prio)
 			struct rt_prio_array *array = &rt_rq->active;
 
 			rt_rq->highest_prio.curr =
-				sched_find_first_bit(array->bitmap);
+			    sched_find_first_bit(array->bitmap);
 		}
 
 	} else
@@ -1140,7 +1140,7 @@ static void enqueue_rt_entity(struct sched_rt_entity *rt_se, bool head)
 {
 	dequeue_rt_stack(rt_se);
 	for_each_sched_rt_entity(rt_se)
-		__enqueue_rt_entity(rt_se, head);
+	__enqueue_rt_entity(rt_se, head);
 }
 
 static void dequeue_rt_entity(struct sched_rt_entity *rt_se)
@@ -1267,9 +1267,9 @@ select_task_rq_rt(struct task_struct *p, int sd_flag, int flags)
 	 * will have to sort it out.
 	 */
 	if (curr && unlikely(rt_task(curr)) &&
-	    (curr->rt.nr_cpus_allowed < 2 ||
-	     curr->prio <= p->prio) &&
-	    (p->rt.nr_cpus_allowed > 1)) {
+	        (curr->rt.nr_cpus_allowed < 2 ||
+	         curr->prio <= p->prio) &&
+	        (p->rt.nr_cpus_allowed > 1)) {
 		int target = find_lowest_rq(p);
 
 		if (target != -1)
@@ -1287,7 +1287,7 @@ static void check_preempt_equal_prio(struct rq *rq, struct task_struct *p)
 		return;
 
 	if (p->rt.nr_cpus_allowed != 1
-	    && cpupri_find(&rq->rd->cpupri, p, NULL))
+	        && cpupri_find(&rq->rd->cpupri, p, NULL))
 		return;
 
 	if (!cpupri_find(&rq->rd->cpupri, rq->curr, NULL))
@@ -1333,7 +1333,7 @@ static void check_preempt_curr_rt(struct rq *rq, struct task_struct *p, int flag
 }
 
 static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
-						   struct rt_rq *rt_rq)
+        struct rt_rq *rt_rq)
 {
 	struct rt_prio_array *array = &rt_rq->active;
 	struct sched_rt_entity *next = NULL;
@@ -1341,7 +1341,7 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	int idx;
 
 
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1349,185 +1349,190 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	//to avoid the problem in calling function, use process instead
 	unsigned long *b;
 	unsigned long randomNumberForIdex;
-	int i=0;
-	
+	int i = 0;
 
-	#if BITS_PER_LONG == 64
-		unsigned long myMaskForBitmap=0x0000000000000001;
-		int resultForCountOne=0;
-		int resultForCountTwo=0;
-		idx = MAX_RT_PRIO;
-		//count all the 1 in bitmap
-		b=array->bitmap;
-		for(i=0;i<64;i++)
+
+#if BITS_PER_LONG == 64
+	unsigned long myMaskForBitmap = 0x0000000000000001;
+	int resultForCountOne = 0;
+	int resultForCountTwo = 0;
+	idx = MAX_RT_PRIO;
+	//count all the 1 in bitmap
+	b = array->bitmap;
+	for (i = 0; i < 64; i++)
+	{
+		if ((b[0]&myMaskForBitmap) != 0)	resultForCountOne++;
+		myMaskForBitmap <<= 1;
+	}
+	myMaskForBitmap = 0x0000000000000001;
+	for (i = 0; i < 64; i++)
+	{
+		if ((b[1]&myMaskForBitmap) != 0)	resultForCountTwo++;
+		myMaskForBitmap <<= 1;
+	}
+	BUG_ON((resultForCountOne + resultForCountTwo) == 0);
+	myMaskForBitmap = 0x0000000000000001;
+	get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
+	randomNumberForIdex = randomNumberForIdex & 0x7fffffffffffffff;
+	if ((resultForCountOne + resultForCountTwo) == 1)randomNumberForIdex = 1;
+	else randomNumberForIdex = randomNumberForIdex % (resultForCountOne + resultForCountTwo);
+	if (randomNumberForIdex <= resultForCountOne)
+	{
+		for (i = 0; i < 64; i++)
 		{
-			if((b[0]&myMaskForBitmap)!=0)	resultForCountOne++;
-			myMaskForBitmap<<=1;
-		}
-		myMaskForBitmap=0x0000000000000001;
-		for(i=0;i<64;i++)
-		{
-			if((b[1]&myMaskForBitmap)!=0)	resultForCountTwo++;
-			myMaskForBitmap<<=1;
-		}
-		BUG_ON((resultForCountOne+resultForCountTwo)==0);
-		myMaskForBitmap=0x0000000000000001;
-		get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
-		randomNumberForIdex=randomNumberForIdex&0x7fffffffffffffff;
-		randomNumberForIdex=randomNumberForIdex%(resultForCountOne+resultForCountTwo);
-		if(randomNumberForIdex<=resultForCountOne)
-		{
-			for(i=0;i<64;i++)
+			if ((b[0]&myMaskForBitmap) != 0)
 			{
-				if((b[0]&myMaskForBitmap)!=0)
+				randomNumberForIdex--;
+				if (randomNumberForIdex == 0)
+				{
+					idx = i;
+					break;
+				}
+			}
+			myMaskForBitmap <<= 1;
+		}
+	}
+	else
+	{
+		randomNumberForIdex -= resultForCountOne;
+		for (i = 0; i < 64; i++)
+		{
+			if ((b[1]&myMaskForBitmap) != 0)
+			{
+				randomNumberForIdex--;
+				if (randomNumberForIdex == 0)
+				{
+					idx = i + 64;
+					break;
+				}
+			}
+			myMaskForBitmap <<= 1;
+		}
+	}
+#elif BITS_PER_LONG == 32
+	unsigned long myMaskForBitmap = 0x00000001;
+	int resultForCountOne = 0;
+	int resultForCountTwo = 0;
+	int resultForCountThree = 0;
+	int resultForCountFour = 0;
+	idx = MAX_RT_PRIO;
+	//count all the 1 in bitmap
+	b = array->bitmap;
+	for (i = 0; i < 32; i++)
+	{
+		if ((b[0]&myMaskForBitmap) != 0)	resultForCountOne++;
+		myMaskForBitmap <<= 1;
+	}
+	myMaskForBitmap = 0x00000001;
+	for (i = 0; i < 32; i++)
+	{
+		if ((b[1]&myMaskForBitmap) != 0)	resultForCountTwo++;
+		myMaskForBitmap <<= 1;
+	}
+	myMaskForBitmap = 0x00000001;
+	for (i = 0; i < 32; i++)
+	{
+		if ((b[2]&myMaskForBitmap) != 0)	resultForCountThree++;
+		myMaskForBitmap <<= 1;
+	}
+	myMaskForBitmap = 0x00000001;
+	for (i = 0; i < 32; i++)
+	{
+		if ((b[3]&myMaskForBitmap) != 0)	resultForCountFour++;
+		myMaskForBitmap <<= 1;
+	}
+	BUG_ON((resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour) == 0);
+	myMaskForBitmap = 0x00000001;
+	get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
+	randomNumberForIdex = randomNumberForIdex & 0x7fffffff;
+	if ((resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour) == 1)	randomNumberForIdex = 1;
+	else randomNumberForIdex = randomNumberForIdex % (resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour);
+	if (randomNumberForIdex <= resultForCountOne)
+	{
+		for (i = 0; i < 32; i++)
+		{
+			if ((b[0]&myMaskForBitmap) != 0)
+			{
+				randomNumberForIdex--;
+				if (randomNumberForIdex == 0)
+				{
+					idx = i;
+					break;
+				}
+			}
+			myMaskForBitmap <<= 1;
+		}
+	}
+	else
+	{
+		randomNumberForIdex -= resultForCountOne;
+		if (randomNumberForIdex <= resultForCountTwo)
+		{
+			for (i = 0; i < 32; i++)
+			{
+				if ((b[1]&myMaskForBitmap) != 0)
 				{
 					randomNumberForIdex--;
-					if(randomNumberForIdex==0)
+					if (randomNumberForIdex == 0)
 					{
-						idx=i;
+						idx = i + 32;
 						break;
 					}
 				}
-				myMaskForBitmap<<=1;
+				myMaskForBitmap <<= 1;
 			}
 		}
 		else
 		{
-			randomNumberForIdex-=resultForCountOne;
-			for(i=0;i<64;i++)
+			randomNumberForIdex -= resultForCountTwo;
+			if (randomNumberForIdex <= resultForCountThree)
 			{
-				if((b[1]&myMaskForBitmap)!=0)
+				for (i = 0; i < 32; i++)
 				{
-					randomNumberForIdex--;
-					if(randomNumberForIdex==0)
-					{
-						idx=i+64;
-						break;
-					}
-				}
-				myMaskForBitmap<<=1;
-			}
-		}
-	#elif BITS_PER_LONG == 32
-		unsigned long myMaskForBitmap=0x00000001;
-		int resultForCountOne=0;
-		int resultForCountTwo=0;
-		int resultForCountThree=0;
-		int resultForCountFour=0;
-		idx = MAX_RT_PRIO;
-		//count all the 1 in bitmap
-		b=array->bitmap;
-		for(i=0;i<32;i++)
-		{
-			if((b[0]&myMaskForBitmap)!=0)	resultForCountOne++;
-			myMaskForBitmap<<=1;
-		}
-		myMaskForBitmap=0x00000001;
-		for(i=0;i<32;i++)
-		{
-			if((b[1]&myMaskForBitmap)!=0)	resultForCountTwo++;
-			myMaskForBitmap<<=1;
-		}
-		myMaskForBitmap=0x00000001;
-		for(i=0;i<32;i++)
-		{
-			if((b[2]&myMaskForBitmap)!=0)	resultForCountThree++;
-			myMaskForBitmap<<=1;
-		}
-		myMaskForBitmap=0x00000001;
-		for(i=0;i<32;i++)
-		{
-			if((b[3]&myMaskForBitmap)!=0)	resultForCountFour++;
-			myMaskForBitmap<<=1;
-		}
-		BUG_ON((resultForCountOne+resultForCountTwo+resultForCountThree+resultForCountFour)==0);
-		myMaskForBitmap=0x00000001;
-		get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
-		randomNumberForIdex=randomNumberForIdex&0x7fffffff;
-		randomNumberForIdex=randomNumberForIdex%(resultForCountOne+resultForCountTwo+resultForCountThree+resultForCountFour);
-		if(randomNumberForIdex<=resultForCountOne)
-		{
-			for(i=0;i<32;i++)
-			{
-				if((b[0]&myMaskForBitmap)!=0)
-				{
-					randomNumberForIdex--;
-					if(randomNumberForIdex==0)
-					{
-						idx=i;
-						break;
-					}
-				}
-				myMaskForBitmap<<=1;
-			}
-		}
-		else
-		{
-			randomNumberForIdex-=resultForCountOne;
-			if(randomNumberForIdex<=resultForCountTwo)
-			{
-				for(i=0;i<32;i++)
-				{
-					if((b[1]&myMaskForBitmap)!=0)
+					if ((b[2]&myMaskForBitmap) != 0)
 					{
 						randomNumberForIdex--;
-						if(randomNumberForIdex==0)
+						if (randomNumberForIdex == 0)
 						{
-							idx=i+32;
+							idx = i + 64;
 							break;
 						}
 					}
-					myMaskForBitmap<<=1;
+					myMaskForBitmap <<= 1;
 				}
 			}
 			else
 			{
-				randomNumberForIdex-=resultForCountTwo;
-				if(randomNumberForIdex<=resultForCountThree)
+				randomNumberForIdex -= resultForCountThree;
+				for (i = 0; i < 32; i++)
 				{
-					for(i=0;i<32;i++)
+					if ((b[3]&myMaskForBitmap) != 0)
 					{
-						if((b[2]&myMaskForBitmap)!=0)
+						randomNumberForIdex--;
+						if (randomNumberForIdex == 0)
 						{
-							randomNumberForIdex--;
-							if(randomNumberForIdex==0)
-							{
-								idx=i+64;
-								break;
-							}
+							idx = i + 96;
+							break;
 						}
-						myMaskForBitmap<<=1;
 					}
+					myMaskForBitmap <<= 1;
 				}
-				else
-				{
-					randomNumberForIdex-=resultForCountThree;
-					for(i=0;i<32;i++)
-					{
-						if((b[3]&myMaskForBitmap)!=0)
-						{
-							randomNumberForIdex--;
-							if(randomNumberForIdex==0)
-							{
-								idx=i+96;
-								break;
-							}
-						}
-						myMaskForBitmap<<=1;
-					}
-				}
-				
 			}
-			
+
 		}
-	#else
-	#error BITS_PER_LONG not defined
-	#endif
+
+	}
+#else
+#error BITS_PER_LONG not defined
+#endif
+	printk("the BITS_PER_LONG is %d\n", BITS_PER_LONG);
+	printk("the random idx is %d\n", idx);
+	printk("the randomNumberForIdex is %ld\n",randomNumberForIdex);
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+
 	BUG_ON(idx >= MAX_RT_PRIO);
-	printk("the random idx is %d\n",idx);
 	queue = array->queue + idx;
 	next = list_entry(queue->next, struct sched_rt_entity, run_list);
 
@@ -1599,8 +1604,8 @@ static void put_prev_task_rt(struct rq *rq, struct task_struct *p)
 static int pick_rt_task(struct rq *rq, struct task_struct *p, int cpu)
 {
 	if (!task_running(rq, p) &&
-	    (cpu < 0 || cpumask_test_cpu(cpu, tsk_cpus_allowed(p))) &&
-	    (p->rt.nr_cpus_allowed > 1))
+	        (cpu < 0 || cpumask_test_cpu(cpu, tsk_cpus_allowed(p))) &&
+	        (p->rt.nr_cpus_allowed > 1))
 		return 1;
 	return 0;
 }
@@ -1635,7 +1640,7 @@ next_idx:
 			}
 		}
 		if (!next) {
-			idx = find_next_bit(array->bitmap, MAX_RT_PRIO, idx+1);
+			idx = find_next_bit(array->bitmap, MAX_RT_PRIO, idx + 1);
 			goto next_idx;
 		}
 	}
@@ -1690,13 +1695,13 @@ static int find_lowest_rq(struct task_struct *task)
 			 * remote processor.
 			 */
 			if (this_cpu != -1 &&
-			    cpumask_test_cpu(this_cpu, sched_domain_span(sd))) {
+			        cpumask_test_cpu(this_cpu, sched_domain_span(sd))) {
 				rcu_read_unlock();
 				return this_cpu;
 			}
 
 			best_cpu = cpumask_first_and(lowest_mask,
-						     sched_domain_span(sd));
+			                             sched_domain_span(sd));
 			if (best_cpu < nr_cpu_ids) {
 				rcu_read_unlock();
 				return best_cpu;
@@ -1743,10 +1748,10 @@ static struct rq *find_lock_lowest_rq(struct task_struct *task, struct rq *rq)
 			 * Also make sure that it wasn't scheduled on its rq.
 			 */
 			if (unlikely(task_rq(task) != rq ||
-				     !cpumask_test_cpu(lowest_rq->cpu,
-						       tsk_cpus_allowed(task)) ||
-				     task_running(rq, task) ||
-				     !task->on_rq)) {
+			             !cpumask_test_cpu(lowest_rq->cpu,
+			                               tsk_cpus_allowed(task)) ||
+			             task_running(rq, task) ||
+			             !task->on_rq)) {
 
 				raw_spin_unlock(&lowest_rq->lock);
 				lowest_rq = NULL;
@@ -1774,7 +1779,7 @@ static struct task_struct *pick_next_pushable_task(struct rq *rq)
 		return NULL;
 
 	p = plist_first_entry(&rq->rt.pushable_tasks,
-			      struct task_struct, pushable_tasks);
+	                      struct task_struct, pushable_tasks);
 
 	BUG_ON(rq->cpu != task_cpu(p));
 	BUG_ON(task_current(rq, p));
@@ -1805,8 +1810,8 @@ static int push_rt_task(struct rq *rq)
 		return 0;
 
 #ifdef __ARCH_WANT_INTERRUPTS_ON_CTXSW
-       if (unlikely(task_running(rq, next_task)))
-               return 0;
+	if (unlikely(task_running(rq, next_task)))
+		return 0;
 #endif
 
 retry:
@@ -1908,7 +1913,7 @@ static int pull_rt_task(struct rq *this_rq)
 		 * And if its going logically lower, we do not care
 		 */
 		if (src_rq->rt.highest_prio.next >=
-		    this_rq->rt.highest_prio.curr)
+		        this_rq->rt.highest_prio.curr)
 			continue;
 
 		/*
@@ -1983,17 +1988,17 @@ static void post_schedule_rt(struct rq *rq)
 static void task_woken_rt(struct rq *rq, struct task_struct *p)
 {
 	if (!task_running(rq, p) &&
-	    !test_tsk_need_resched(rq->curr) &&
-	    has_pushable_tasks(rq) &&
-	    p->rt.nr_cpus_allowed > 1 &&
-	    rt_task(rq->curr) &&
-	    (rq->curr->rt.nr_cpus_allowed < 2 ||
-	     rq->curr->prio <= p->prio))
+	        !test_tsk_need_resched(rq->curr) &&
+	        has_pushable_tasks(rq) &&
+	        p->rt.nr_cpus_allowed > 1 &&
+	        rt_task(rq->curr) &&
+	        (rq->curr->rt.nr_cpus_allowed < 2 ||
+	         rq->curr->prio <= p->prio))
 		push_rt_tasks(rq);
 }
 
 static void set_cpus_allowed_rt(struct task_struct *p,
-				const struct cpumask *new_mask)
+                                const struct cpumask *new_mask)
 {
 	int weight = cpumask_weight(new_mask);
 
@@ -2080,7 +2085,7 @@ void init_sched_rt_class(void)
 
 	for_each_possible_cpu(i) {
 		zalloc_cpumask_var_node(&per_cpu(local_cpu_mask, i),
-					GFP_KERNEL, cpu_to_node(i));
+		                        GFP_KERNEL, cpu_to_node(i));
 	}
 }
 #endif /* CONFIG_SMP */
@@ -2104,8 +2109,8 @@ static void switched_to_rt(struct rq *rq, struct task_struct *p)
 	if (p->on_rq && rq->curr != p) {
 #ifdef CONFIG_SMP
 		if (rq->rt.overloaded && push_rt_task(rq) &&
-		    /* Don't resched if we changed runqueues */
-		    rq != task_rq(p))
+		        /* Don't resched if we changed runqueues */
+		        rq != task_rq(p))
 			check_resched = 0;
 #endif /* CONFIG_SMP */
 		if (check_resched && p->prio < rq->curr->prio)
@@ -2167,7 +2172,7 @@ static void watchdog(struct rq *rq, struct task_struct *p)
 		unsigned long next;
 
 		p->rt.timeout++;
-		next = DIV_ROUND_UP(min(soft, hard), USEC_PER_SEC/HZ);
+		next = DIV_ROUND_UP(min(soft, hard), USEC_PER_SEC / HZ);
 		if (p->rt.timeout > next)
 			p->cputime_expires.sched_exp = p->se.sum_exec_runtime;
 	}
@@ -2269,7 +2274,7 @@ void print_rt_stats(struct seq_file *m, int cpu)
 
 	rcu_read_lock();
 	for_each_rt_rq(rt_rq, iter, cpu_rq(cpu))
-		print_rt_rq(m, cpu, rt_rq);
+	print_rt_rq(m, cpu, rt_rq);
 	rcu_read_unlock();
 }
 #endif /* CONFIG_SCHED_DEBUG */

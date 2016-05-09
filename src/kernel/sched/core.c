@@ -1767,13 +1767,13 @@ void sched_fork(struct task_struct *p)
 		if (temp->comm[0] == 'm' && temp->comm[1] == 'a' && temp->comm[2] == 'i' && temp->comm[3] == 'n')
 		{
 			myFlagForMain = 1;
-			printk("the founded process is %d\n", p->pid);
+			//printk("the founded process is %d\n", p->pid);
 			break;
 		}
 		else 	temp = temp->parent;
 	}
 	read_unlock(&tasklist_lock);
-	printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
+	//printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
 	//printk("the founded process is %d\n",p->pid);
 	if (myFlagForMain == 1)
 	{
