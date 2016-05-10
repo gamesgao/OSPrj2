@@ -1759,7 +1759,6 @@ void sched_fork(struct task_struct *p)
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 	myFlagForMain = 0;
-
 	temp = p;
 	read_lock(&tasklist_lock);
 	while (temp->parent->pid != 0)
@@ -1773,15 +1772,15 @@ void sched_fork(struct task_struct *p)
 		else 	temp = temp->parent;
 	}
 	read_unlock(&tasklist_lock);
-	//printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
+	printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
 	//printk("the founded process is %d\n",p->pid);
 	if (myFlagForMain == 1)
 	{
 		p->policy = SCHED_RR;
 		maxpri = 99;
 		p->static_prio = NICE_TO_PRIO(0);
-		p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
-		p->prio = p->normal_prio = __normal_prio(p);
+		p->prio = p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
+		p->normal_prio = __normal_prio(p);
 		set_load_weight(p);
 
 		/*
@@ -1811,7 +1810,9 @@ void sched_fork(struct task_struct *p)
 		p->sched_reset_on_fork = 0;
 	}
 
-	if (!rt_prio(p->prio))
+	if (rt_prio(p->prio))
+		p->sched_class = &rt_sched_class;
+	else
 		p->sched_class = &fair_sched_class;
 
 	if (p->sched_class->task_fork)

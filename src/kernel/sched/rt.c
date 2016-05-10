@@ -1350,7 +1350,8 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	unsigned long *b;
 	unsigned long randomNumberForIdex;
 	int i = 0;
-
+	int theNumberOfProcessInQueue = 0;
+	struct list_head *posi;
 
 #if BITS_PER_LONG == 64
 	unsigned long myMaskForBitmap = 0x0000000000000001;
@@ -1375,7 +1376,7 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
 	randomNumberForIdex = randomNumberForIdex & 0x7fffffffffffffff;
 	if ((resultForCountOne + resultForCountTwo) == 1)randomNumberForIdex = 1;
-	else randomNumberForIdex = randomNumberForIdex % (resultForCountOne + resultForCountTwo);
+	else randomNumberForIdex = randomNumberForIdex % (resultForCountOne + resultForCountTwo - 1) + 1;
 	if (randomNumberForIdex <= resultForCountOne)
 	{
 		for (i = 0; i < 64; i++)
@@ -1444,9 +1445,13 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	BUG_ON((resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour) == 0);
 	myMaskForBitmap = 0x00000001;
 	get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
+	//printk("the raw randomNumberForIdex is %ld\n",randomNumberForIdex);
 	randomNumberForIdex = randomNumberForIdex & 0x7fffffff;
+	//printk("the current randomNumberForIdex is %ld\n",randomNumberForIdex);
 	if ((resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour) == 1)	randomNumberForIdex = 1;
-	else randomNumberForIdex = randomNumberForIdex % (resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour);
+	else randomNumberForIdex = randomNumberForIdex % (resultForCountOne + resultForCountTwo + resultForCountThree + resultForCountFour - 1) + 1;
+	//printk("the after randomNumberForIdex is %ld\n",randomNumberForIdex);
+	//printk("the number of one is %d %d %d %d \n",resultForCountOne ,resultForCountTwo,resultForCountThree,resultForCountFour);
 	if (randomNumberForIdex <= resultForCountOne)
 	{
 		for (i = 0; i < 32; i++)
@@ -1525,17 +1530,38 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 #else
 #error BITS_PER_LONG not defined
 #endif
-	printk("the BITS_PER_LONG is %d\n", BITS_PER_LONG);
 	printk("the random idx is %d\n", idx);
-	printk("the randomNumberForIdex is %ld\n",randomNumberForIdex);
+
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 	BUG_ON(idx >= MAX_RT_PRIO);
 	queue = array->queue + idx;
-	next = list_entry(queue->next, struct sched_rt_entity, run_list);
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+	list_for_each(posi, queue);
+	{
+		theNumberOfProcessInQueue++;
+	}
+	get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
+	randomNumberForIdex = randomNumberForIdex & 0x7fffffff;
+	randomNumberForIdex = randomNumberForIdex % theNumberOfProcessInQueue + 1;
+	printk("the randomNumberForIdex is %ld\n", randomNumberForIdex);
+	printk("the theNumberOfProcessInQueue is %d\n",theNumberOfProcessInQueue);
+	list_for_each_entry(next, queue, run_list)
+	{
+		randomNumberForIdex--;
+		if (randomNumberForIdex == 0) break;
+	}
 
+	//next = list_entry(queue->next, struct sched_rt_entity, run_list);
+
+
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 	return next;
 }
 
