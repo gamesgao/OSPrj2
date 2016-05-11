@@ -1530,7 +1530,7 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 #else
 #error BITS_PER_LONG not defined
 #endif
-	printk("the random idx is %d\n", idx);
+	//printk("the random idx is %d\n", idx);
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
@@ -1548,8 +1548,8 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
 	get_random_bytes(&randomNumberForIdex, sizeof(unsigned long));
 	randomNumberForIdex = randomNumberForIdex & 0x7fffffff;
 	randomNumberForIdex = randomNumberForIdex % theNumberOfProcessInQueue + 1;
-	printk("the randomNumberForIdex is %ld\n", randomNumberForIdex);
-	printk("the theNumberOfProcessInQueue is %d\n",theNumberOfProcessInQueue);
+	//printk("the randomNumberForIdex is %ld\n", randomNumberForIdex);
+	//printk("the theNumberOfProcessInQueue is %d\n",theNumberOfProcessInQueue);
 	list_for_each_entry(next, queue, run_list)
 	{
 		randomNumberForIdex--;
