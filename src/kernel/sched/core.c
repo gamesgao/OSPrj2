@@ -1736,9 +1736,12 @@ void sched_fork(struct task_struct *p)
 {
 	unsigned long flags;
 	int cpu = get_cpu();
+
 	int maxpri;
 	int myFlagForMain;
 	struct task_struct *temp;
+	struct sched_param param;
+
 	__sched_fork(p);
 	/*
 	 * We mark the process as running here. This guarantees that
@@ -1776,23 +1779,24 @@ void sched_fork(struct task_struct *p)
 	//printk("the founded process is %d\n",p->pid);
 	if (myFlagForMain == 1)
 	{
+		/*
 		p->policy = SCHED_RR;
 		maxpri = 99;
 		p->static_prio = NICE_TO_PRIO(0);
-		p->prio = p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
-		p->normal_prio = __normal_prio(p);
+		p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
+		p->prio =p->normal_prio = normal_prio(p);
+		*/
+		param.sched_priority=(99/ 5) * (p->pid % 5) + 1;
+		sched_setscheduler(p,SCHED_RR,&param);
 		set_load_weight(p);
 
-		/*
-		 * We don't need the reset flag anymore after the fork. It has
-		 * fulfilled its duty:
-		 */
 		p->sched_reset_on_fork = 0;
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 	}
-	else if (unlikely(p->sched_reset_on_fork)) {
+	else
+	if (unlikely(p->sched_reset_on_fork)) {
 		if (task_has_rt_policy(p)) {
 			p->policy = SCHED_NORMAL;
 			p->static_prio = NICE_TO_PRIO(0);
@@ -1812,9 +1816,9 @@ void sched_fork(struct task_struct *p)
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-	if (rt_prio(p->prio))
-		p->sched_class = &rt_sched_class;
-	else
+	if (!rt_prio(p->prio))
+	/*	p->sched_class = &rt_sched_class;
+	else*/
 		p->sched_class = &fair_sched_class;
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
