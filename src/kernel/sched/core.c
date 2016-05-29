@@ -1736,12 +1736,6 @@ void sched_fork(struct task_struct *p)
 {
 	unsigned long flags;
 	int cpu = get_cpu();
-
-	int maxpri;
-	int myFlagForMain;
-	struct task_struct *temp;
-	struct sched_param param;
-
 	__sched_fork(p);
 	/*
 	 * We mark the process as running here. This guarantees that
@@ -1758,44 +1752,6 @@ void sched_fork(struct task_struct *p)
 	/*
 	 * Revert to default priority/policy on fork if requested.
 	 */
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////changepart!///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-	myFlagForMain = 0;
-	temp = p;
-	read_lock(&tasklist_lock);
-	while (temp->parent->pid != 0)
-	{
-		if (temp->comm[0] == 'm' && temp->comm[1] == 'a' && temp->comm[2] == 'i' && temp->comm[3] == 'n')
-		{
-			myFlagForMain = 1;
-			//printk("the founded process is %d\n", p->pid);
-			break;
-		}
-		else 	temp = temp->parent;
-	}
-	read_unlock(&tasklist_lock);
-	//printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
-	//printk("the founded process is %d\n",p->pid);
-	if (myFlagForMain == 1)
-	{
-		/*
-		p->policy = SCHED_RR;
-		maxpri = 99;
-		p->static_prio = NICE_TO_PRIO(0);
-		p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
-		p->prio =p->normal_prio = normal_prio(p);
-		*/
-		param.sched_priority=(99/ 5) * (p->pid % 5) + 1;
-		sched_setscheduler(p,SCHED_RR,&param);
-		set_load_weight(p);
-
-		p->sched_reset_on_fork = 0;
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////changepart!///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-	}
-	else
 	if (unlikely(p->sched_reset_on_fork)) {
 		if (task_has_rt_policy(p)) {
 			p->policy = SCHED_NORMAL;
@@ -1813,16 +1769,10 @@ void sched_fork(struct task_struct *p)
 		 */
 		p->sched_reset_on_fork = 0;
 	}
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////changepart!///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 	if (!rt_prio(p->prio))
-	/*	p->sched_class = &rt_sched_class;
-	else*/
+	
 		p->sched_class = &fair_sched_class;
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////changepart!///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+
 	if (p->sched_class->task_fork)
 		p->sched_class->task_fork(p);
 
@@ -4250,6 +4200,23 @@ static bool check_same_owner(struct task_struct *p)
 	return match;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+void my_sched_setscheduler(struct task_struct *p, int policy,int prio)
+
+{
+	unsigned long flags;
+	struct rq *rq;
+
+	rq = task_rq_lock(p, &flags);
+	__setscheduler(rq, p, policy, prio);
+	task_rq_unlock(rq, p, &flags);
+}
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 static int __sched_setscheduler(struct task_struct *p, int policy,
                                 const struct sched_param *param, bool user)
 {
@@ -4287,7 +4254,7 @@ recheck:
 		return -EINVAL;
 	if (rt_policy(policy) != (param->sched_priority != 0))
 		return -EINVAL;
-
+	
 	/*
 	 * Allow unprivileged RT tasks to decrease priority:
 	 */
@@ -4295,17 +4262,15 @@ recheck:
 		if (rt_policy(policy)) {
 			unsigned long rlim_rtprio =
 			    task_rlimit(p, RLIMIT_RTPRIO);
-
 			/* can't set/change the rt policy */
 			if (policy != p->policy && !rlim_rtprio)
 				return -EPERM;
-
 			/* can't increase priority */
 			if (param->sched_priority > p->rt_priority &&
 			        param->sched_priority > rlim_rtprio)
 				return -EPERM;
 		}
-
+		
 		/*
 		 * Treat SCHED_IDLE as nice 20. Only allow a switch to
 		 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
@@ -4314,22 +4279,22 @@ recheck:
 			if (!can_nice(p, TASK_NICE(p)))
 				return -EPERM;
 		}
-
+		
 		/* can't change other user's priorities */
 		if (!check_same_owner(p))
 			return -EPERM;
-
+		
 		/* Normal users shall not reset the sched_reset_on_fork flag */
 		if (p->sched_reset_on_fork && !reset_on_fork)
 			return -EPERM;
 	}
-
+	
 	if (user) {
 		retval = security_task_setscheduler(p);
 		if (retval)
 			return retval;
 	}
-
+	
 	/*
 	 * make sure no PI-waiters arrive (or leave) while we are
 	 * changing the priority of the task:
@@ -4390,6 +4355,7 @@ recheck:
 
 	oldprio = p->prio;
 	prev_class = p->sched_class;
+	
 	__setscheduler(rq, p, policy, param->sched_priority);
 
 	if (running)
@@ -4401,7 +4367,6 @@ recheck:
 	task_rq_unlock(rq, p, &flags);
 
 	rt_mutex_adjust_pi(p);
-
 	return 0;
 }
 
