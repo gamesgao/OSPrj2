@@ -14,11 +14,25 @@ struct prinfo {
 	char 	comm[64];
 };
 
-int main()
+int charToNum(char *str)
+{
+	int i=0;
+	int result=0;
+	while(str[i]!='\0')
+	{
+		result*=10;
+		result+=str[i]-'0';
+		i++;
+	}
+	return result;
+}
+
+int main(int argc, char * argv[])
 {
 
 	struct sched_param param;
 	int maxpri;
+	int myPrio=0;
 	struct prinfo buf[100];
 	int nr = 100;
 	int realnr = 0;
@@ -37,6 +51,8 @@ int main()
 		}
 		param.sched_priority = maxpri;
 	*/
+
+	myPrio=charToNum(argv[1]);
 	if (!buf)
 	{
 		printf("the allocation of memory is failed!\n");
@@ -80,7 +96,7 @@ int main()
 	param.sched_priority=58;
 	printf("the current prio is %d\n", param.sched_priority);
 	printf("the current algorithm is %d\n", sched_getscheduler(testPid));*/
-	param.sched_priority=1;
+	param.sched_priority=myPrio;
 	//sched_getparam(testPid, &param);
 	printf("%d\n",testPid);
 	if (sched_setscheduler(testPid, SCHED_RR, &param) == -1) //设置优先级

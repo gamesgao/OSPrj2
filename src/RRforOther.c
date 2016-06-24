@@ -32,6 +32,19 @@ int strCompare(char* src, char* dst)
 	return flag;
 }
 
+int setProcessToRR(pid_t pid,int prio)
+{
+	struct sched_param param;
+	printf("%d\n", pid);
+	//sched_getparam(buf[i].pid, &param);
+	param.sched_priority=prio;
+	if (sched_setscheduler(pid, SCHED_RR, &param) == -1) //设置优先级
+	{
+		perror("sched_setscheduler() failed");
+	}
+	return 0;
+}
+
 int main()
 {
 
@@ -71,43 +84,60 @@ int main()
 	{
 
 
-
+		//printf("depth:%d\n",buf[i].depth);
 		if (strCompare(buf[i].comm, processName) == 1)
 		{
 			testPid = buf[i].pid;
+			//printf("depth:%d\n",buf[testPid].depth);
 			printf("%d\n", testPid);
+			/*
 			struct sched_param param;
-			sched_getparam(testPid, &param);
-			if (sched_setscheduler(testPid, SCHED_RR, &param) == -1) //设置优先级
+			//sched_getparam(testPid, &param);
+			param.sched_priority=0;
+			if (sched_setscheduler(testPid, SCHED_NORMAL, &param) == -1) //设置优先级
 			{
 				perror("sched_setscheduler() failed");
 			}
+			*/
 			break;
 		}
 		//for(j=0;j<buf[i].depth;j++) printf("\t");
-		printf("%s,%d,%ld,%d,%d,%d,%ld\n", buf[i].comm, buf[i].pid, buf[i].state, buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid, buf[i].uid);
+		//printf("%s,%d,%ld,%d,%d,%d,%ld\n", buf[i].comm, buf[i].pid, buf[i].state, buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid, buf[i].uid);
 	}
-	for (i++; i < realnr; i++)
+	//printf("depth:%d\n",buf[testPid].depth);
+	for (i=i+1; i < realnr; i++)
 	{
-		if (buf[testPid].depth < buf[i].depth)
+		//printf("depth:%d\n", buf[i].depth);
+		if (1 < buf[i].depth)
 		{
+
 			if (strCompare(buf[i].comm, exceptionProcess) == 0)
 			{
+				setProcessToRR(buf[i].pid,99);
+				/*
 				struct sched_param param;
-				sched_getparam(buf[i].pid, &param);
+				printf("%d\n", buf[i].pid);
+				//sched_getparam(buf[i].pid, &param);
+				param.sched_priority=10;
 				if (sched_setscheduler(buf[i].pid, SCHED_RR, &param) == -1) //设置优先级
 				{
 					perror("sched_setscheduler() failed");
 				}
+				*/
 			}
 			else
-			{
+			{	
+				setProcessToRR(buf[i].pid,1);
+				/*
 				struct sched_param param;
-				sched_getparam(buf[i].pid, &param);
-				if (sched_setscheduler(buf[i].pid, SCHED_NORMAL, &param) == -1) //设置优先级
+				//sched_getparam(buf[i].pid, &param);
+				printf("est:%d\n", buf[i].pid);
+				param.sched_priority=20;
+				if (sched_setscheduler(buf[i].pid, SCHED_RR, &param) == -1) //设置优先级
 				{
 					perror("sched_setscheduler() failed");
 				}
+				*/
 			}
 		}
 		else	break;

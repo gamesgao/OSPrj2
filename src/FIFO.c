@@ -69,12 +69,12 @@ int main()
 			break;
 		}
 		//for(j=0;j<buf[i].depth;j++) printf("\t");
-		printf("%s,%d,%ld,%d,%d,%d,%ld\n", buf[i].comm, buf[i].pid,buf[i].state,buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid,buf[i].uid);
+		//printf("%s,%d,%ld,%d,%d,%d,%ld\n", buf[i].comm, buf[i].pid,buf[i].state,buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid,buf[i].uid);
 	}
 
-
+	param.sched_priority=1;
 	printf("%d\n",testPid);
-	sched_getparam(testPid,&param);
+	//sched_getparam(testPid,&param);
 	if (sched_setscheduler(testPid, SCHED_FIFO, &param) == -1) //设置优先级
 	{
 		perror("sched_setscheduler() failed");
