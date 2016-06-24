@@ -1,4 +1,10 @@
 /*
+ * modified by gaoyu 5140309409
+ * to search the "changepart" to posite the modified part
+ * modified this file is to implement the default scheduler(problem 2 part 1)
+ */
+
+/*
  *  linux/kernel/fork.c
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
@@ -1634,10 +1640,10 @@ long do_fork(unsigned long clone_flags,
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+	//some varible needed in the following part
 	int maxpri;
 	int myFlagForMain;
 	struct task_struct *temp;
-	struct sched_param param;
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1691,41 +1697,16 @@ long do_fork(unsigned long clone_flags,
 		if (temp->comm[0] == 'm' && temp->comm[1] == 'a' && temp->comm[2] == 'i' && temp->comm[3] == 'n')
 		{
 			myFlagForMain = 1;
-			//printk("the founded process is %d\n", p->pid);
 			break;
 		}
 		else 	temp = temp->parent;
 	}
 	read_unlock(&tasklist_lock);
-	//printk("now the %d's myFlagForMain is %d\n", p->pid, myFlagForMain);
-	//printk("the founded process is %d\n",p->pid);
 	if (myFlagForMain == 1)
 	{
 		maxpri = 99;
+		//change the default policy
 		my_sched_setscheduler(p,SCHED_RR,(maxpri / 5) * (p->pid % 5) + 1);
-		/*
-		p->policy = SCHED_RR;
-		maxpri = 99;
-		p->static_prio = NICE_TO_PRIO(0);
-		p->rt_priority = (maxpri / 5) * (p->pid % 5) + 1;
-		p->normal_prio = normal_prio(p);
-		p->prio = rt_mutex_getprio(p);
-		if (rt_prio(p->prio))
-			p->sched_class = &rt_sched_class;
-		else
-			p->sched_class = &fair_sched_class;
-		set_load_weight(p);
-		if(sched_getscheduler(p)!=SCHED_RR&&sched_getscheduler(p)!=SCHED_FIFO)
-		{
-			param.sched_priority=(99/ 5) * (p->pid % 5) + 1;
-			if (sched_setscheduler(p,SCHED_RR,&param) == -1) //设置优先级
-			{
-				printk("sched_setscheduler() failed.\n");
-			}
-		}
-		
-		//p->sched_reset_on_fork = 0;
-		*/
 	}
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////changepart!///////////////////////////////////

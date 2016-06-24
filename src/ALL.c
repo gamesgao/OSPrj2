@@ -1,3 +1,8 @@
+/*
+ * programed by gaoyu
+ * this program is to show all the process its scheduler and priority
+*/
+
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,24 +19,6 @@ struct prinfo {
 	char 	comm[64];
 };
 
-//may cause problem!
-int strCompare(char* src, char* dst)
-{
-	int j = 0;
-	int flag = 0;
-	while (dst[j] != '\0' && src[j] != '\0')
-	{
-		if (dst[j] == src[j]) flag = 1;
-		else
-		{
-			flag = 0;
-			break;
-		}
-		j++;
-	}
-	return flag;
-}
-
 int main()
 {
 
@@ -45,21 +32,13 @@ int main()
 	pid_t testPid;
 	char processName[5] = "main";
 	char exceptionProcess[16] = "est.processtest";
-	/*
-		maxpri=sched_get_priority_max(SCHED_FIFO);
 
-		if(maxpri == -1)
-		{
-			perror("sched_get_priority_max() failed");
-			exit(1);
-		}
-		param.sched_priority = maxpri;
-	*/
 	if (!buf)
 	{
 		printf("the allocation of memory is failed!\n");
 		return -1;
 	}
+	//syscall
 	realnr = syscall(356, buf, &nr);
 	if (realnr >= 0) printf("success! the real NR is %d\n", realnr);
 	else
@@ -67,16 +46,12 @@ int main()
 		printf("the system call return error!\n");
 		return -1;
 	}
+	//print the information
 	for (i = 0; i < realnr; i++)
 	{
 		struct sched_param param;
 		sched_getparam(buf[i].pid, &param);
 		printf("the current algorithm for %d is %d prio=%d\n",buf[i].pid, sched_getscheduler(buf[i].pid),param.sched_priority );	
 	}
-	
-
-
 	return 0;
 }
-
-//est.processtest

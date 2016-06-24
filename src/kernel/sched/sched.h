@@ -1,3 +1,9 @@
+/*
+ * modified by gaoyu 5140309409
+ * to search the "changepart" to posite the modified part
+ * modified this file is to implement the default scheduler(problem 2 part 1)
+ */
+
 #ifndef _LINUX_SCHED_H
 #define _LINUX_SCHED_H
 
@@ -2144,7 +2150,14 @@ extern int task_nice(const struct task_struct *p);
 extern int can_nice(const struct task_struct *p, const int nice);
 extern int task_curr(const struct task_struct *p);
 extern int idle_cpu(int cpu);
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//add the function to be used in the fork.c
 extern void my_sched_setscheduler(struct task_struct *p, int policy,int prio);
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////changepart!///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 extern int sched_setscheduler(struct task_struct *, int,
 			      const struct sched_param *);
 extern int sched_setscheduler_nocheck(struct task_struct *, int,

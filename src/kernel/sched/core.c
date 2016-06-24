@@ -1,4 +1,10 @@
 /*
+ * modified by gaoyu 5140309409
+ * to search the "changepart" to posite the modified part
+ * modified this file is to implement the default scheduler(problem 2 part 1)
+ */
+
+/*
  *  kernel/sched/core.c
  *
  *  Kernel scheduler and related syscalls
@@ -4204,12 +4210,12 @@ static bool check_same_owner(struct task_struct *p)
 //////////////////////////////changepart!///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 void my_sched_setscheduler(struct task_struct *p, int policy,int prio)
-
 {
 	unsigned long flags;
 	struct rq *rq;
-
+	//get the runqueue lock
 	rq = task_rq_lock(p, &flags);
+	//change the policy
 	__setscheduler(rq, p, policy, prio);
 	task_rq_unlock(rq, p, &flags);
 }

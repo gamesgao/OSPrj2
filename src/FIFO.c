@@ -1,3 +1,8 @@
+/*
+ * programed by gaoyu
+ * this program is to set test process scheduler to FIFO
+*/
+
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,21 +31,13 @@ int main()
 	int j=0;
 	pid_t testPid;
 	char processName[16]="est.processtest";
-/*
-	maxpri=sched_get_priority_max(SCHED_FIFO);
 
-	if(maxpri == -1)
-	{
-		perror("sched_get_priority_max() failed");
-		exit(1);
-	}
-	param.sched_priority = maxpri;
-*/
 	if(!buf)
 	{
 		printf("the allocation of memory is failed!\n");
 		return -1;
 	}
+	//syscall
 	realnr=syscall(356,buf,&nr);
 	if(realnr>=0) printf("success! the real NR is %d\n",realnr);
 	else
@@ -48,6 +45,7 @@ int main()
 		printf("the system call return error!\n");
 		return -1;
 	}
+	//find the test process
 	for(i=0;i<realnr;i++)
 	{
 
@@ -68,19 +66,13 @@ int main()
 			testPid=buf[i].pid;
 			break;
 		}
-		//for(j=0;j<buf[i].depth;j++) printf("\t");
-		//printf("%s,%d,%ld,%d,%d,%d,%ld\n", buf[i].comm, buf[i].pid,buf[i].state,buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid,buf[i].uid);
 	}
-
+	//set the test process scheduler to FIFO
 	param.sched_priority=1;
 	printf("%d\n",testPid);
-	//sched_getparam(testPid,&param);
 	if (sched_setscheduler(testPid, SCHED_FIFO, &param) == -1) //设置优先级
 	{
 		perror("sched_setscheduler() failed");
 	}
-
 	return 0;
 }
-
-//est.processtest
